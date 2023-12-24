@@ -1,0 +1,16 @@
+.bounding-box {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px solid #00ff00; /* Green border color */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Optionally, you can add some animation or styling to make it more visually appealing */
+
+.bounding-box:hover {
+  border: 2px solid #ff0000; /* Red border color on hover */
+  transition: border-color 0.3s ease-in-out;
+}
