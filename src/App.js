@@ -18,6 +18,9 @@ function App() {
   const [imageUrl, setImageUrl] = useState('');
   const [boxes, setBoxes] = useState([]);
   const [route, setRoute] = useState('signin');
+  const [user, setUser] = useState(null);
+
+
 
   // this should be run only once per application lifetime
   useEffect(() => {
@@ -33,6 +36,10 @@ function App() {
       setInit(true);
     });
   }, []);
+
+  const updateUserEntries = (entries) => {
+    setUser((prevData) => ({...prevData, 'entries': entries}));
+  }
 
   const onInputChange = event => {
     setInput(event.target.value);
@@ -68,7 +75,7 @@ function App() {
     setRoute(route);
   }
 
-  const onButtonSubmit = () => {
+  const onPictureSubmit = () => {
     setImageUrl(input);
 
     // https://api.clarifai.com/v2/models/{YOUR_MODEL_ID}/outputs
@@ -76,6 +83,15 @@ function App() {
     fetch('https://api.clarifai.com/v2/models/face-detection/outputs', requestOptions(input))
       .then(response => response.json())
       .then(result => {
+        fetch('http://localhost:3000/image', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: user.id }),
+        })
+          .then(r => r.json())
+          .then(updateUserEntries);
         const regions = result.outputs[0].data.regions;
         var myBoxes = [];
         regions.forEach(region => {
@@ -83,7 +99,6 @@ function App() {
         });
         setBoxes(myBoxes);
       })
-
       .catch(error => console.log('error', error));
   };
 
@@ -100,14 +115,14 @@ function App() {
         {route === 'home' ? (
           <>
             <Logo />
-            <Rank />
-            <ImageLinkForm onInputChange={onInputChange} onButtonSubmit={onButtonSubmit} />
+            <Rank user={user} />
+            <ImageLinkForm onInputChange={onInputChange} onButtonSubmit={onPictureSubmit} />
             <FaceRecognition imageUrl={imageUrl} box={boxes} />
           </>
         ) : route === 'register' ? (
-          <Register onRouteChange={onRouteChange} />
+          <Register onRouteChange={onRouteChange} setUser={setUser} />
         ) : (
-          <Signin onRouteChange={onRouteChange} />
+          <Signin onRouteChange={onRouteChange} setUser={setUser} />
         )}
       </div>
     );
