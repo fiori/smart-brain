@@ -20,11 +20,17 @@ function App() {
   const [route, setRoute] = useState('signin');
   const [user, setUser] = useState(null);
 
-
+  const resetAllStates = () => {
+    setIsSignedIn(false);
+    setInput('');
+    setImageUrl('');
+    setBoxes([]);
+    setUser(null);
+  };
 
   // this should be run only once per application lifetime
   useEffect(() => {
-    initParticlesEngine(async engine => {
+    initParticlesEngine(async (engine) => {
       // you can initiate the tsParticles instance (engine) here, adding custom shapes or presets
       // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
       // starting from v2 you can add only the features you need reducing the bundle size
@@ -38,14 +44,14 @@ function App() {
   }, []);
 
   const updateUserEntries = (entries) => {
-    setUser((prevData) => ({...prevData, 'entries': entries}));
-  }
+    setUser((prevData) => ({ ...prevData, entries: entries }));
+  };
 
-  const onInputChange = event => {
+  const onInputChange = (event) => {
     setInput(event.target.value);
   };
 
-  const calculateFaceLocation = region => {
+  const calculateFaceLocation = (region) => {
     // Accessing and rounding the bounding box values
     const boundingBox = region.region_info.bounding_box;
     const image = document.getElementById('inputImage');
@@ -67,47 +73,62 @@ function App() {
   };
 
   const onRouteChange = (route) => {
-    if(route === 'signout')
-      setIsSignedIn(false);
-    else if(route === 'home')
+    if (route === 'signout') {
+      resetAllStates();
+    } else if (route === 'home') {
       setIsSignedIn(true);
+    }
 
     setRoute(route);
-  }
+  };
 
   const onPictureSubmit = () => {
     setImageUrl(input);
 
-    // https://api.clarifai.com/v2/models/{YOUR_MODEL_ID}/outputs
-    // this will default to the latest version_id
-    fetch('https://api.clarifai.com/v2/models/face-detection/outputs', requestOptions(input))
-      .then(response => response.json())
-      .then(result => {
-        fetch('http://localhost:3000/image', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ id: user.id }),
-        })
-          .then(r => r.json())
-          .then(updateUserEntries);
-        const regions = result.outputs[0].data.regions;
-        var myBoxes = [];
-        regions.forEach(region => {
-          myBoxes.push(calculateFaceLocation(region));
-        });
-        setBoxes(myBoxes);
+    fetch('http://localhost:3000/imageurl', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        input: input,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          // Check for 400 status code
+          if (response.status === 400) {
+            throw new Error('Bad Request - Cant work with api');
+          }
+          // Handle other non-successful status codes here if needed
+          throw new Error(`Server Error: ${response.status}`);
+        }
+        return response.json();
       })
-      .catch(error => console.log('error', error));
+      .then((response) => {
+        if (response) {
+          fetch('http://localhost:3000/image', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: user.id }),
+          })
+            .then((r) => r.json())
+            .then(updateUserEntries)
+            .catch(console.log);
+          const regions = response.outputs[0].data.regions;
+          var myBoxes = [];
+          regions.forEach((region) => {
+            myBoxes.push(calculateFaceLocation(region));
+          });
+          setBoxes(myBoxes);
+        }
+      })
+      .catch((error) => console.log('error', error));
   };
 
-  
-
   if (init) {
-    // NOTE: MODEL_VERSION_ID is optional, you can also call prediction with the MODEL_ID only
-    // https://api.clarifai.com/v2/models/{YOUR_MODEL_ID}/outputs
-    // this will default to the latest version_id
     return (
       <div className="App">
         <MyParticles />
@@ -127,51 +148,6 @@ function App() {
       </div>
     );
   } else return <></>;
-}
-
-function requestOptions(imgUrl) {
-  ///////////////////////////////////////////////////////////////////////////////////////////////////
-  // In this section, we set the user authentication, user and app ID, model details, and the URL
-  // of the image we want as an input. Change these strings to run your own example.
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-
-  // Your PAT (Personal Access Token) can be found in the portal under Authentification
-  const PAT = '61368c3a306f4400b35e0d0b9949ff49';
-  // Specify the correct user_id/app_id pairings
-  // Since you're making inferences outside your app's scope
-  const USER_ID = 'clarifai';
-  const APP_ID = 'main';
-  // Change these to whatever model and image URL you want to use
-  const IMAGE_URL = imgUrl;
-
-  ///////////////////////////////////////////////////////////////////////////////////
-  // YOU DO NOT NEED TO CHANGE ANYTHING BELOW THIS LINE TO RUN THIS EXAMPLE
-  ///////////////////////////////////////////////////////////////////////////////////
-  const raw = JSON.stringify({
-    user_app_id: {
-      user_id: USER_ID,
-      app_id: APP_ID,
-    },
-    inputs: [
-      {
-        data: {
-          image: {
-            url: IMAGE_URL,
-            // "base64": IMAGE_BYTES_STRING
-          },
-        },
-      },
-    ],
-  });
-
-  return {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      Authorization: 'Key ' + PAT,
-    },
-    body: raw,
-  };
 }
 
 export default App;

@@ -1,5 +1,5 @@
 .Tilt {
-    background: linear-gradient(90deg, rgba(85,0,124,1) 0%, rgba(121,9,98,1) 35%, rgba(0,212,255,1) 100%);;
+    background: linear-gradient(90deg, rgba(85,0,124,1) 0%, rgba(121,9,98,1) 30%,rgb(96, 12, 132) 70%, rgb(111, 0, 255) 100%);
 }
 
 .Tilt-inner {
@@ -8,4 +8,6 @@
     align-items: center;
     height: 100%;
     justify-content: center;
+    transform: scaleY(-1);
+    filter: invert(1);
 }
