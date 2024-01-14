@@ -6,14 +6,14 @@ const Signin = ({ onRouteChange, setUser }) => {
 
   const onSubmitSignIn = (event) => {
     event.preventDefault();
-    fetch('http://localhost:3000/signin', {
+    fetch('http://fioripi:3000/signin', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ email, password }),
     })
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
           // Check for 400 status code
           if (response.status === 400) {
@@ -24,13 +24,13 @@ const Signin = ({ onRouteChange, setUser }) => {
         }
         return response.json();
       })
-      .then(user => {
+      .then((user) => {
         if (user.id) {
           setUser(user);
           onRouteChange('home');
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error:', error.message);
         // Handle errors or show error message to the user
       });

@@ -7,14 +7,14 @@ const Register = ({ onRouteChange, setUser }) => {
 
   const onSubmitRegister = (event) => {
     event.preventDefault();
-    fetch('http://localhost:3000/register', {
+    fetch('http://fioripi:3000/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ name, email, password }),
     })
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
           // Check for 400 status code
           if (response.status === 400) {
@@ -25,13 +25,13 @@ const Register = ({ onRouteChange, setUser }) => {
         }
         return response.json();
       })
-      .then(user => {
+      .then((user) => {
         if (user.id) {
           setUser(user);
           onRouteChange('home');
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error:', error.message);
         // Handle errors or show error message to the user
       });

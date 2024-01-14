@@ -85,7 +85,7 @@ function App() {
   const onPictureSubmit = () => {
     setImageUrl(input);
 
-    fetch('http://localhost:3000/imageurl', {
+    fetch('http://fioripi:3000/imageurl', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -107,7 +107,7 @@ function App() {
       })
       .then((response) => {
         if (response) {
-          fetch('http://localhost:3000/image', {
+          fetch('http://fioripi:3000/image', {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
