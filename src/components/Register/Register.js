@@ -7,7 +7,7 @@ const Register = ({ onRouteChange, setUser }) => {
 
   const onSubmitRegister = (event) => {
     event.preventDefault();
-    fetch('http://fioripi:3000/register', {
+    fetch(`${process.env.API_URL}/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

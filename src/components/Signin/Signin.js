@@ -6,7 +6,7 @@ const Signin = ({ onRouteChange, setUser }) => {
 
   const onSubmitSignIn = (event) => {
     event.preventDefault();
-    fetch('http://fioripi:3000/signin', {
+    fetch(`${process.env.REACT_APP_API_URL}/signin`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
