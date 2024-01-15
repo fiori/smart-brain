@@ -85,7 +85,7 @@ function App() {
   const onPictureSubmit = () => {
     setImageUrl(input);
 
-    fetch(`${process.env.API_URL}/imageurl`, {
+    fetch(`${process.env.REACT_APP_API_URL}/imageurl`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -107,7 +107,7 @@ function App() {
       })
       .then((response) => {
         if (response) {
-          fetch(`${process.env.API_URL}/image`, {
+          fetch(`${process.env.REACT_APP_API_URL}/image`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
